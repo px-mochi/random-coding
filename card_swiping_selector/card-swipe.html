@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Card Flipping animation Demo</title>
+	<link rel="stylesheet" type="text/css" href="card-flip.css">
+</head>
+<body>
+	<header>
+		<h1>Proof of concept for a selector widget for credit/debit card designs</h1>
+		<p>This was implemented together with a CMS backend to allow easy upload of card contents and other details.</p>
+		<div class="remarks">
+			<p>Swipe or use the "Left" and "Right" buttons to select your design.</p>
+			<p>Click (or tap) on the currently shown card to select it.</p>
+		</div>
+	</header>
+	<button class="btn-left" onclick="cardLeft()">Left</button>
+	<button class="btn-right" onclick="cardRight()">Right</button>
+	<div class="card-container">
+		<div class="card" id="1"><img src="1.png"></div>
+		<div class="card" id="2"><img src="2.png"></div>
+		<div class="card" id="3"><img src="3.png"></div>
+		<div class="card" id="4"><img src="4.png"></div>
+		<div class="card" id="5"><img src="5.png"></div>
+		<div class="card" id="6"><img src="6.png"></div>
+		<div class="card" id="7"><img src="7.png"></div>
+		<div class="card" id="8"><img src="8.png"></div>
+		<div class="card" id="9"><img src="9.png"></div>
+		<div class="card" id="10"><img src="10.png"></div>
+		<div class="card" id="11"><img src="11.png"></div>
+		<div class="card" id="12"><img src="12.png"></div>
+	</div>
+	<footer>
+		<p>Made by Pei Xuan with help from Google, and a want to have a pure HTML + CSS solution to my problem at the time.</p>
+	</footer>
+
+<script type="text/javascript">
+	var redacted_selected = false;
+	var cardIndex = 0;
+	window.addEventListener('load', function() {
+		addClass(cardIndex);
+		selectCard();
+	})
+	cardImgs = document.getElementsByClassName("card");
+	numCards = cardImgs.length;
+	function selectCard () {
+		var centerCard = document.getElementsByClassName("center")[0];
+		centerCard.onclick = function selectCard(event) {
+			if (redacted_selected) {
+				cardDiv = event.target;
+			} else {
+				cardDiv = event.target.parentElement;
+			}
+			var centerCardCheck = document.getElementsByClassName("center")[0];
+			if (centerCard == centerCardCheck) {
+				// Only if the selected card is the card displayed in the center
+				// Fixing a bug where cards previously in the center was able to be selected
+				centerCard.classList.toggle("selected")
+				redacted_selected = !redacted_selected;
+				if (redacted_selected) {
+					var selectedCard = centerCard;
+					console.log("redacted card selected - "+selectedCard.getAttribute('id'));
+					sessionStorage.setItem("redacted_face", selectedCard.getAttribute('id'));
+				} else {
+					selectedCard = "";
+					sessionStorage.setItem("redacted_face", selectedCard);
+				}
+			}
+		}
+	}
+	function cardLeft() {
+		if (redacted_selected) {
+		} else {
+			if (cardIndex - 1 == -1) {
+				cardIndex = numCards - 1
+			} else {
+				cardIndex = cardIndex -1
+			}
+			removeClass();
+			addClass(cardIndex);
+			selectCard();
+		}
+	}
+	function cardRight() {
+		if (redacted_selected) {
+		} else {
+			if (cardIndex + 1 == numCards) {
+				cardIndex = 0
+			} else {
+				cardIndex = cardIndex + 1
+			}
+			removeClass();
+			addClass(cardIndex);
+			selectCard();
+		}
+	}
+
+	function addClass(cardIndex) {
+		// If functions to loop the card stack
+		// HIDDEN CARDS
+		if (cardIndex -3 == -1) {
+			cardImgs[numCards-1].classList.add("left-hidden")
+		} else if (cardIndex -3 == -2) {
+			cardImgs[numCards-2].classList.add("left-hidden")			
+		} else if (cardIndex -3 == -3) {
+			cardImgs[numCards-3].classList.add("left-hidden")
+		} else {
+			cardImgs[cardIndex-3].classList.add("left-hidden")			
+		};
+
+		if (cardIndex +3 == numCards+2) {
+			cardImgs[2].classList.add("right-hidden")
+		} else if (cardIndex +3 == numCards+1) {
+			cardImgs[1].classList.add("right-hidden")			
+		} else if (cardIndex +3 == numCards) {
+			cardImgs[0].classList.add("right-hidden")
+		} else {
+			cardImgs[cardIndex+3].classList.add("right-hidden")			
+		};		
+		// END HIDDEN CARDS
+
+		// VISIBLE CARDS
+		if (cardIndex - 2 == -1) {
+			cardImgs[numCards-1].classList.add("left-2")
+		} else if (cardIndex - 2 == -2) {
+			cardImgs[numCards-2].classList.add("left-2")
+		} else {
+			cardImgs[cardIndex-2].classList.add("left-2")
+		};
+
+		if (cardIndex - 1 == -1) {
+			cardImgs[numCards-1].classList.add("left-1")
+		} else {
+			cardImgs[cardIndex-1].classList.add("left-1")
+		};
+		cardImgs[cardIndex].classList.add("center");
+
+		if (cardIndex + 1 == numCards) {
+			cardImgs[0].classList.add("right-1");
+		} else {
+			cardImgs[cardIndex+1].classList.add("right-1")
+		};
+
+		if (cardIndex + 2 == numCards) {
+			cardImgs[0].classList.add("right-2")
+		} else if (cardIndex + 2 == numCards + 1) {
+			cardImgs[1].classList.add("right-2")
+		} else {
+			cardImgs[cardIndex+2].classList.add("right-2")
+		};
+		// END VISIBLE CARDS
+	}
+
+	function removeClass() {
+		var i;
+		for (i = 0; i < numCards; i++) {
+			cardImgs[i].classList.remove("left-2")
+			cardImgs[i].classList.remove("left-1");
+			cardImgs[i].classList.remove("center");
+			cardImgs[i].classList.remove("right-1");
+			cardImgs[i].classList.remove("right-2");
+			cardImgs[i].classList.remove("left-hidden");
+			cardImgs[i].classList.remove("right-hidden");
+		}
+	}
+
+
+	// Add touchscreen or click-and-drag function
+	//credits: https://css-tricks.com/simple-swipe-with-vanilla-javascript/
+	const cardContainer = document.getElementsByClassName("card-container")[0];
+	function startSwipe(e) {};
+	function endSwipe(e) {};
+	cardContainer.addEventListener('mousedown', startSwipe, false);
+	cardContainer.addEventListener('touchstart', startSwipe, false);
+	cardContainer.addEventListener('mouseup', endSwipe, false);
+	cardContainer.addEventListener('touchend', endSwipe, false);
+
+	// Function to detect X-position of mouse and touch events
+	function unify(e) { return e.changedTouches ? e.changedTouches[0] : e };
+	let xPosStart = null;
+	function startSwipe(e) { 
+		xPosStart = unify(e).clientX;
+	};
+	function endSwipe(e) {
+		if (xPosStart || xPosStart === 0) {
+			xPosEnd = unify(e).clientX;
+			swipeDistance = Math.abs(xPosEnd - xPosStart);
+			swipeDirection = Math.sign(xPosEnd - xPosStart);
+		}
+
+		if ((swipeDistance > 20) && (swipeDirection == -1)) {
+			cardRight()
+		} else if ((swipeDistance > 20) && (swipeDirection == 1)) {
+			cardLeft()
+		} else {
+			// do nothing, due to possible misswipe (less than 20 pixels)
+		}
+	}	
+
+	// 20230429 The 'drag the image out instead of doing what I want' was getting annoying
+	window.ondragstart = function() { return false; } 
+</script>
+</body>
+</html>
+
